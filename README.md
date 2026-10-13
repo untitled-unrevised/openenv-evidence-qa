@@ -9,6 +9,10 @@ Dataset: https://huggingface.co/datasets/hieudhgdfgdfg/evidence-qa-v1
 
 Image: `ghcr.io/untitled-unrevised/evidence-qa:v1`
 
+Arena run and admission evidence: [run-v1](docs/run-v1.md).
+
+Live dashboard: https://openenvarena-training.hf.space/?project=hieudhgdfgdfg&runs=5e9d18e3bcf706ac9c5c0fc8
+
 There are 12 training task IDs: four invoice reconciliation instances, four
 claim audits, and four subtitle audits. The task families deliberately connect
 data-quality work with objective checks rather than subjective LLM judging.
