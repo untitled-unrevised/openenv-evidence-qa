@@ -1,0 +1,11 @@
+.venv
+__pycache__
+.pytest_cache
+.git
+tests
+docs
+artifacts
+scripts
+README.md
+AGENTS.md
+submission.template.json

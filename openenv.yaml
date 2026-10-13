@@ -1,0 +1,7 @@
+spec_version: 1
+name: evidence_qa_env
+version: 0.1.0
+type: space
+runtime: fastapi
+app: evidence_qa.server:app
+port: 8000

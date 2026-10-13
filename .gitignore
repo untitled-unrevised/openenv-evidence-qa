@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+artifacts/
+.agent/
+AGENTS.md
+docs/attempt-review.md
+docs/feasibility.md
+docs/arena-guide-*.md

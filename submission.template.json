@@ -1,0 +1,245 @@
+{
+  "submission_id": "evidence-qa-v1",
+  "name": "Evidence QA: corrections, reconciliation and subtitle audits",
+  "image": "ghcr.io/REPLACE_WITH_LOWERCASE_OWNER/evidence-qa:v1",
+  "schema": {
+    "action": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "additionalProperties": true,
+          "description": "Additional metadata for the action",
+          "title": "Metadata",
+          "type": "object"
+        },
+        "operation": {
+          "enum": [
+            "list",
+            "read",
+            "submit",
+            "finish"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "path": {
+          "default": "",
+          "title": "Path",
+          "type": "string"
+        },
+        "answer": {
+          "additionalProperties": true,
+          "title": "Answer",
+          "type": "object"
+        }
+      },
+      "required": [
+        "operation"
+      ],
+      "title": "QAAction",
+      "type": "object"
+    },
+    "observation": {
+      "additionalProperties": false,
+      "properties": {
+        "done": {
+          "default": false,
+          "description": "Whether the episode has terminated",
+          "title": "Done",
+          "type": "boolean"
+        },
+        "reward": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Reward signal from the last action",
+          "title": "Reward"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "description": "Additional metadata for the observation",
+          "title": "Metadata",
+          "type": "object"
+        },
+        "instruction": {
+          "default": "",
+          "title": "Instruction",
+          "type": "string"
+        },
+        "files": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Files",
+          "type": "array"
+        },
+        "content": {
+          "default": "",
+          "title": "Content",
+          "type": "string"
+        },
+        "message": {
+          "default": "",
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "title": "QAObservation",
+      "type": "object"
+    }
+  },
+  "tasks": [
+    {
+      "task_id": "ledger-1",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "ledger-2",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "ledger-3",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "ledger-4",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "claims-1",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "claims-2",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "claims-3",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "claims-4",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "subtitles-1",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "subtitles-2",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "subtitles-3",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    },
+    {
+      "task_id": "subtitles-4",
+      "split": "train",
+      "reset_wall_s": 120,
+      "rollout_wall_s": 180,
+      "verifier_wall_s": 15,
+      "tool_wall_s": 15,
+      "tool_calls_total": 16,
+      "completion_tokens": 4096,
+      "context_tokens": 8192
+    }
+  ],
+  "example_actions": [
+    {
+      "operation": "finish"
+    }
+  ],
+  "finish_action": {
+    "operation": "finish"
+  }
+}
