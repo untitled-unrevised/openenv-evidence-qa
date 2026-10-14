@@ -57,6 +57,19 @@ def main():
                   'updated_at':datetime.now(timezone.utc).isoformat(),**extra}
             write_json(output/'operator-status.json',data)
             print(json.dumps(data),flush=True)
+            routine={'read_only_preflight','waiting_for_quota','monitoring','completed',
+                     'post_response_unconfirmed_read_only_monitor'}
+            if args.desktop_alert and state not in routine:
+                try:
+                    alert=subprocess.run([
+                        '/home/admins/.codex/skills/attention-alert/scripts/notify.sh',
+                        'Arena second run needs attention',
+                        f'Status: {state}. Inspect {output / "operator-status.json"}. '
+                        'No extra submission was created.'
+                    ],capture_output=True,text=True,timeout=10)
+                    write_json(output/'desktop-alert.json',{'service_accepted':alert.returncode==0,
+                                                           'state':state,'user_saw_alert':'unverified'})
+                except (OSError,subprocess.TimeoutExpired):pass
         listing=get('/api/openenv/submissions')
         existing=next((s for s in listing.get('submissions',[]) if s.get('submission_id')==sid),None)
         eligibility=max([args.not_before]+[float(s.get('slot',{}).get('window_ends_at') or 0)
