@@ -7,12 +7,13 @@ import argparse
 import fcntl
 import hashlib
 import json
+import subprocess
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from huggingface_hub import get_token
+from huggingface_hub import HfApi, get_token
 
 BASE='https://openenvarena-arena.hf.space'
 
@@ -28,8 +29,10 @@ def main():
     p.add_argument('--request',required=True)
     p.add_argument('--sha256',required=True)
     p.add_argument('--not-before',type=float,required=True)
+    p.add_argument('--dataset-revision',required=True)
     p.add_argument('--output',required=True)
     p.add_argument('--execute',action='store_true')
+    p.add_argument('--desktop-alert',action='store_true')
     args=p.parse_args()
     raw=Path(args.request).read_bytes()
     if hashlib.sha256(raw).hexdigest()!=args.sha256:raise SystemExit('Frozen request hash mismatch')
@@ -42,6 +45,9 @@ def main():
         fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
         token=get_token()
         if not token:raise SystemExit('No stored HF credential')
+        current_dataset=HfApi(token=token).dataset_info(request['dataset']).sha
+        if current_dataset!=args.dataset_revision:
+            raise SystemExit('Dataset changed since verification; no submission made')
         session=requests.Session();session.headers['Authorization']='Bearer '+token
         def get(path):
             response=session.get(BASE+path,timeout=30,allow_redirects=False)
@@ -139,6 +145,18 @@ def main():
                 except requests.RequestException:pass
                 (output/'result.md').write_text(report)
                 write_json(output/'result.json',{'submission_id':sid,'run':run,'evaluation':evaluation})
+                if args.desktop_alert:
+                    try:
+                        alert=subprocess.run([
+                            '/home/admins/.codex/skills/attention-alert/scripts/notify.sh',
+                            'Arena second run complete',
+                            f'Result: {solved}/{total} ({100*solved/total:.1f}%). '
+                            f'Open {output / "result.md"} for the verified evaluation.'
+                        ],capture_output=True,text=True,timeout=10)
+                        write_json(output/'desktop-alert.json',{'service_accepted':alert.returncode==0,
+                                                               'user_saw_alert':'unverified'})
+                    except (OSError,subprocess.TimeoutExpired):
+                        write_json(output/'desktop-alert.json',{'service_accepted':False})
                 status('completed',solved=solved,total=total,result_file=str(output/'result.md'))
                 return
             if state in ('rejected','failed','cancelled','canceled'):

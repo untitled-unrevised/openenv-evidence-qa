@@ -47,7 +47,42 @@ remain a narrow curriculum, and success on fresh seeds is not structural transfe
 
 ## Validation and outcome
 
-Validation evidence is under artifacts/workspace-feasibility/. Record the
-published image digest, dataset revision, accepted submission/run identifiers,
-and actual final evaluation after they become available. Do not infer private
-scores from training rewards or call a scheduled run accepted/completed.
+Validation: 345 local tests pass, including eight tests of posting boundaries
+using fake HTTP. All twelve configurations were solved over real WebSockets by
+writing independent repair programs through the actual tools and running the
+public tests. Each repaired program earned 1 on private cases; an incorrect
+program earned 0 even after tests.py was replaced with a fake passing script.
+Session UIDs differed, private source reads were denied, and action-budget
+exhaustion invoked private grading. The SDK's six endpoint checks passed.
+An anonymous pull and the same network replays passed on the published image.
+These are scripted engineering checks, not target-model calibration.
+
+Published assets:
+
+- Image: `ghcr.io/untitled-unrevised/evidence-qa@sha256:82c4213615ac47bd0ee574281a6fd45b60bd788ae9fa748efcce26175d6fb35b`
+- Image workflow: <https://github.com/untitled-unrevised/openenv-evidence-qa/actions/runs/38526120055>
+- Environment source: commit `892a6c83a6a502e97eb8dc71ede39f1650fad3cb`
+- Dataset: <https://huggingface.co/datasets/hieudhgdfgdfg/evidence-search-v2/tree/b3e6ac3261eb7560f17719248a29f91550460ae9>
+- Frozen request SHA-256: `f0e3e3c417529e8664b481b93a02cfa45227e7d6f8466262eeeac179c25b0f4c`
+
+The enabled persistent user timer `openenv-second-run-20261014.timer` is scheduled
+for **2026-10-14 15:56 UTC / 22:56 Bangkok**, after the verified quota window.
+Its service runs a frozen copy of scripts/run_second_attempt.py. A read-only
+preflight under that service account verified credential access, dataset
+revision, the request hash, the absence of this submission id, and the current
+quota. The preflight made zero POST requests. An existing accepted id is resumed;
+an ambiguous prior POST is not repeated. A changed quota or dataset stops the
+operation. Monitoring is bounded to 24 hours, uses read-only polls once per
+minute, and saves the actual terminal evaluation rather than training reward.
+
+At preparation time this is **scheduled, not accepted or completed**. No second
+Arena score exists. Intended id: `evidence-search-v2-20261014`. The live run id
+and dashboard will be recorded after acceptance.
+
+Local status: `artifacts/second-run/operator-status.json`. Final result, once
+available: `artifacts/second-run/result.md` and `result.json`. A completed
+evaluation triggers one host-desktop alert using the installed attention-alert
+skill; it does not send a phone notification or a new message into this chat.
+Validation evidence and the frozen request/operator are under
+`artifacts/workspace-feasibility/`. Do not infer private scores from training
+rewards or call a scheduled run accepted/completed.
