@@ -5,9 +5,17 @@ on:
   workflow_dispatch:
     inputs:
       publish:
-        description: Publish ghcr.io/untitled-unrevised/evidence-qa:v1
+        description: Publish the selected experiment image
         type: boolean
         default: false
+        required: true
+      recipe:
+        description: Select the v1 baseline or original search curriculum
+        type: choice
+        options:
+          - v1
+          - search-v2
+        default: v1
         required: true
 permissions:
   contents: read
@@ -18,12 +26,27 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+      - name: Select fixed build recipe
+        env:
+          RECIPE: ${{ inputs.recipe }}
+        run: |
+          case "$RECIPE" in
+            v1|'')
+              echo 'DOCKERFILE=Dockerfile' >> "$GITHUB_ENV"
+              echo 'IMAGE=ghcr.io/untitled-unrevised/evidence-qa:v1' >> "$GITHUB_ENV"
+              ;;
+            search-v2)
+              echo 'DOCKERFILE=Dockerfile.search' >> "$GITHUB_ENV"
+              echo 'IMAGE=ghcr.io/untitled-unrevised/evidence-qa:search-v2' >> "$GITHUB_ENV"
+              ;;
+            *) exit 2 ;;
+          esac
       - name: Build linux/amd64 image
-        run: docker build --platform linux/amd64 --label org.opencontainers.image.source=https://github.com/untitled-unrevised/openenv-evidence-qa -t ghcr.io/untitled-unrevised/evidence-qa:v1 .
+        run: docker build --platform linux/amd64 -f "$DOCKERFILE" --label org.opencontainers.image.source=https://github.com/untitled-unrevised/openenv-evidence-qa -t "$IMAGE" .
       - name: Check container endpoints
         shell: bash
         run: |
-          docker run -d --name evidence-qa-check ghcr.io/untitled-unrevised/evidence-qa:v1
+          docker run -d --name evidence-qa-check "$IMAGE"
           trap 'docker stop evidence-qa-check' EXIT
           ready=false
           for attempt in $(seq 1 30); do
@@ -41,4 +64,4 @@ jobs:
           REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io -u untitled-unrevised --password-stdin
-          docker push ghcr.io/untitled-unrevised/evidence-qa:v1
+          docker push "$IMAGE"
