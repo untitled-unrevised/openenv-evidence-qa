@@ -8,6 +8,12 @@ from .workbench import WorkbenchEnvironment, _UIDS, _UID_LOCK
 from .search_curriculum import SEARCH_TASKS, make_search_task
 
 
+def same_json(actual, expected):
+    # Python considers True == 1 and 1.0 == 1; the artifact contract does not.
+    return json.dumps(actual,sort_keys=True,allow_nan=False,separators=(',',':')) == json.dumps(
+        expected,sort_keys=True,allow_nan=False,separators=(',',':'))
+
+
 class SearchWorkbenchEnvironment(WorkbenchEnvironment):
     def reset(self, seed=None, episode_id=None, task_id='reconcile-1', **kwargs):
         if task_id not in SEARCH_TASKS:raise ValueError('Unknown task_id')
@@ -54,7 +60,7 @@ print(json.dumps(results,allow_nan=False))
             actual=json.loads(output)
             if not isinstance(actual,list) or len(actual)!=len(cases):raise ValueError()
             passed=[isinstance(a,dict) and 'result' in a and not a.get('mutated',True)
-                    and a['result']==expected for a,(data,expected) in zip(actual,cases)]
+                    and same_json(a['result'],expected) for a,(data,expected) in zip(actual,cases)]
         except (ValueError,TypeError,KeyError):return 0.0,'Invalid result serialization'
         count=sum(passed)
         return count/len(cases),f'{count}/{len(cases)} cases passed'

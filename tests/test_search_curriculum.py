@@ -5,6 +5,7 @@ import pytest
 
 from evidence_qa.search_curriculum import SEARCH_TASKS, make_search_task, reference
 from search_solutions import SOLUTIONS
+from evidence_qa.search_workbench import same_json
 
 
 @pytest.mark.parametrize('task_id',SEARCH_TASKS)
@@ -32,3 +33,9 @@ def test_fresh_instances_and_reproducible_explicit_seed():
     for task_id in SEARCH_TASKS:
         assert make_search_task(task_id,17)==make_search_task(task_id,17)
         assert make_search_task(task_id)[1]!=make_search_task(task_id)[1]
+
+
+def test_integer_outputs_and_object_order_are_graded_correctly():
+    assert same_json({'a':1,'b':2},{'b':2,'a':1})
+    assert not same_json({'value':True},{'value':1})
+    assert not same_json({'value':1.0},{'value':1})

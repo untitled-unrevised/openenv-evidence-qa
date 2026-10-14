@@ -76,6 +76,7 @@ def main():
             listing=get('/api/openenv/submissions')
             existing=next((s for s in listing.get('submissions',[]) if s.get('submission_id')==sid),None)
             for row in listing.get('submissions',[]):
+                if row.get('submission_id')==sid:continue
                 end=float(row.get('slot',{}).get('window_ends_at') or 0)
                 if row.get('slot',{}).get('state') in ('held','used') and end>time.time():
                     status('quota_changed_no_post',eligible_at=end);return
