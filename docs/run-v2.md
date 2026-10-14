@@ -55,7 +55,8 @@ instead trains a policy to repair programs against a contract: inspect, reproduc
 a failure, edit, test, inspect counterexamples, and submit a working artifact.
 The four original synthetic contracts are reconciliation, branching dialogue
 parsing, deterministic dependency ordering, and weighted interval selection.
-Three input sizes per contract give twelve task configurations. Each unseeded
+Three size levels per contract give twelve task configurations. The pre-run audit
+added eight structural scenario patterns per family; see [pre-run audit](pre-run-audit.md). Each unseeded
 reset generates new inputs; public examples and final evaluation cases differ.
 
 The container reuses the pinned SDK and existing unprivileged workbench runner.
@@ -75,7 +76,7 @@ remain a narrow curriculum, and success on fresh seeds is not structural transfe
 
 ## Validation and outcome
 
-Validation: 345 local tests pass, including eight tests of posting boundaries
+Validation after the pre-run audit: 352 local tests pass, including eight tests of posting boundaries
 using fake HTTP. All twelve configurations were solved over real WebSockets by
 writing independent repair programs through the actual tools and running the
 public tests. Each repaired program earned 1 on private cases; an incorrect
@@ -83,15 +84,17 @@ program earned 0 even after tests.py was replaced with a fake passing script.
 Session UIDs differed, private source reads were denied, and action-budget
 exhaustion invoked private grading. The SDK's six endpoint checks passed.
 An anonymous pull and the same network replays passed on the published image.
+The revised source also passed a second-seed replay and the published image
+passed a third-seed replay. CI now checks the actual repair loop before publishing.
 These are scripted engineering checks, not target-model calibration.
 
 Published assets:
 
-- Image: `ghcr.io/untitled-unrevised/evidence-qa@sha256:82c4213615ac47bd0ee574281a6fd45b60bd788ae9fa748efcce26175d6fb35b`
-- Image workflow: <https://github.com/untitled-unrevised/openenv-evidence-qa/actions/runs/38526120055>
-- Environment source: commit `892a6c83a6a502e97eb8dc71ede39f1650fad3cb`
-- Dataset: <https://huggingface.co/datasets/hieudhgdfgdfg/evidence-search-v2/tree/b3e6ac3261eb7560f17719248a29f91550460ae9>
-- Frozen request SHA-256: `f0e3e3c417529e8664b481b93a02cfa45227e7d6f8466262eeeac179c25b0f4c`
+- Image: `ghcr.io/untitled-unrevised/evidence-qa@sha256:2fe294a5c86b89a5be2480171c2131d17c5a4ecb9348b7b1ff4606d4de086f50`
+- Image workflow: <https://github.com/untitled-unrevised/openenv-evidence-qa/actions/runs/38534465998>
+- Environment source: commit `7587f9b516915e3c588ace6473b20038bf2aa45a`
+- Dataset: <https://huggingface.co/datasets/hieudhgdfgdfg/evidence-search-v2/tree/ea2a38abf4b7be0226e3d70f8349a94afda94593>
+- Frozen request SHA-256: `b6bb409b4d93642877003a4df042679db383fc0e43b91ca6b576fd05056b6093`
 
 The enabled persistent user timer `openenv-second-run-20261014.timer` is scheduled
 for **2026-10-14 15:56 UTC / 22:56 Bangkok**, after the verified quota window.
@@ -114,3 +117,11 @@ skill; it does not send a phone notification or a new message into this chat.
 Validation evidence and the frozen request/operator are under
 `artifacts/workspace-feasibility/`. Do not infer private scores from training
 rewards or call a scheduled run accepted/completed.
+
+The pre-run audit found four contract-violating shortcuts with full reward on
+480/480 original cases each. Revised generators reject each shortcut, and visible
+tests now match final numeric typing and save concise counterexample artifacts.
+The active pins above supersede the original prepared pins, preserved in Git
+history and artifacts/pre-run-audit/original-scheduled/. The one-call anonymous
+Qwen demo probe produced a service error and zero model responses. No new
+calibration or improvement claim follows from this audit.

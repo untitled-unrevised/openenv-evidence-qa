@@ -61,3 +61,18 @@ Local evidence: artifacts/pre-run-audit/shortcut-audit-before.json,
 shortcut-audit.json, qwen-probe/results.json, preserved original scheduled pins,
 and the revised container replays/publication record. The prior run record is
 retained for provenance; scheduled-operation.json identifies the active pins.
+
+## Verified replacement assets
+
+352 local tests pass. All twelve configurations pass the real tool/repair loop
+at seeds2718 and51 locally; the anonymously pulled published image passes seed7321.
+The published SDK validator passes6/6. CI now repeats repair replays before push.
+
+- Image: `ghcr.io/untitled-unrevised/evidence-qa@sha256:2fe294a5c86b89a5be2480171c2131d17c5a4ecb9348b7b1ff4606d4de086f50`
+- Dataset revision: `ea2a38abf4b7be0226e3d70f8349a94afda94593`
+- Environment source: `7587f9b516915e3c588ace6473b20038bf2aa45a`
+- Request SHA-256: `b6bb409b4d93642877003a4df042679db383fc0e43b91ca6b576fd05056b6093`
+- Workflow: https://github.com/untitled-unrevised/openenv-evidence-qa/actions/runs/38534465998
+
+The service-account read-only preflight validates the revised pins and quota.
+The persistent timer retains22:56 Bangkok; no live submission was made by this audit.
