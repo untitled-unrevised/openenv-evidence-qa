@@ -9,8 +9,8 @@ language:
 # Evidence Search Workbench v2
 
 Original synthetic code-repair practice for OpenEnv Arena. Twelve configurations
-cover four contracts at three input sizes: invoice reconciliation, branching text
-parsing, dependency ordering, and weighted interval selection. Task inputs change
+cover four contracts at three size levels: invoice reconciliation, branching text
+parsing, dependency ordering, and weighted interval selection. Task shapes and inputs change
 on every unseeded reset. Explicit seeds reproduce an instance. No personal data
 or public benchmark instances are included in training.
 
@@ -22,6 +22,13 @@ not terminate it. A final submit/finish ends the episode and tests the submitted
 implementation on sixteen separately generated private cases. Reward is the
 fraction of those cases passing, including the no-input-mutation requirement.
 Private expected outputs remain in the server and are never returned by check.
+Eight scenario patterns per family include simple cases and deliberate contract
+boundaries: variable amendments and credit values, mixed graph shapes and tags,
+arrows inside dialogue text, cycles/isolated/empty dependency graphs, and interval
+touching, ties, negative values, greedy traps and empty selections. Final cases
+include each scenario twice. Public tests enforce the same JSON numeric types as
+the final grader, save detailed counterexamples to failure-N.json, and keep
+console output concise.
 
 The hypothesis is that practising reproducible failures, executable hypotheses,
 counterexamples and code repairs can improve tool use on unfamiliar workflows.

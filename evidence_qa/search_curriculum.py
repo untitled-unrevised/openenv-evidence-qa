@@ -139,32 +139,99 @@ def reference(family, data):
 
 
 def case(family, rng, level, index):
+    scenario=index%8
     if family == 'reconcile':
-        n=2+level;ids=[f'I{rng.randrange(1000,9999)}-{i}' for i in range(n)]
-        invoices=[{'id':s,'cents':rng.randrange(1000,20000),'status':'posted' if i<n-1 else 'void'} for i,s in enumerate(ids)]
-        payments=[{'id':f'P{i}','invoice':s,'cents':rng.randrange(1,800)} for i,s in enumerate(ids)]
-        payments.append(dict(payments[0]));rng.shuffle(payments)
-        amendments=[{'invoice':ids[0],'revision':r,'cents':rng.randrange(1000,20000)} for r in (3,1,2)]
-        credits=[{'invoice':ids[0],'cents':100,'status':'draft'},{'invoice':ids[1],'cents':50,'status':'posted'}]
-        rng.shuffle(invoices)
+        n=rng.randint(2,3+level)
+        ids=[f'I{rng.randrange(1000,9999)}-{i}' for i in range(n)]
+        invoices=[{'id':s,'cents':rng.randrange(1000,20000),
+                   'status':'posted' if rng.random()<0.7 else 'void'} for s in ids]
+        invoices[0]['status']='posted'
+        if scenario==5:
+            for row in invoices:row['status']='void'
+        posted=[r['id'] for r in invoices if r['status']=='posted']
+        payments=[{'id':f'P{i}','invoice':s,'cents':rng.randrange(1,800)}
+                  for i,s in enumerate(rng.sample(ids,rng.randrange(n+1)))]
+        if scenario in (2,4,6,7) and payments:
+            payments.extend(dict(payments[0]) for _ in range(rng.randint(1,3)))
+        if scenario in (4,7):
+            payments.append({'id':'orphan-payment','invoice':'absent','cents':rng.randrange(100,999)})
+        amendments=[]
+        if scenario in (1,4,6,7):
+            for identifier in rng.sample(ids,rng.randint(1,min(n,level+1))):
+                revisions=rng.sample(range(1,12),rng.randint(2,4))
+                edits=[{'invoice':identifier,'revision':rev,'cents':rng.randrange(1000,20000)}
+                       for rev in revisions]
+                rng.shuffle(edits)
+                if scenario==1:edits.sort(key=lambda a:a['revision'])
+                amendments.extend(edits)
+        credits=[]
+        if scenario in (3,4,6,7) and posted:
+            credits.append({'invoice':rng.choice(posted),'cents':rng.randrange(51,2500),'status':'posted'})
+            credits.append({'invoice':rng.choice(ids),'cents':rng.randrange(100,4000),'status':'draft'})
+            if scenario in (4,7):
+                credits.extend({'invoice':rng.choice(ids),'cents':rng.randrange(1,900),
+                                'status':rng.choice(['posted','draft'])} for _ in range(level))
+                credits.append({'invoice':'absent','cents':777,'status':'posted'})
+        if scenario==6 and posted:
+            payments.append({'id':'overpayment','invoice':posted[0],'cents':100000})
+        rng.shuffle(invoices);rng.shuffle(payments);rng.shuffle(credits)
         return {'invoices':invoices,'amendments':amendments,'payments':payments,'credits':credits}
     if family == 'dialogue':
-        token=str(rng.randrange(100,999));start='Entry'+token;branch='Select'+token
-        lines=[f'[{start}]',f'Narrator: Note: ticket {index} -> {branch}','',f'[{branch}]']
-        for i in range(1,level+3):lines.append(f'{i}. [Wait] route {i}: ticket {token} -> Path{token}_{i}')
-        for i in range(1,level+3):lines.extend(['',f'[Path{token}_{i}]',f'Guide: Arrival {i} -> End'])
-        sep='\r\n' if index%2 else '\n'
-        return {'text':sep.join(lines)+'\n'}
+        n=1 if scenario==0 else rng.randint(level+2,level+6)
+        identifiers=[f'{rng.choice(["Hall","Branch","Room","Desk"])}{rng.randrange(100,999)}_{i}'
+                     for i in range(n)]
+        lines=[]
+        for i,identifier in enumerate(identifiers):
+            lines.extend(['',f'[{identifier}]'])
+            is_choice=n>1 and (i==1 or rng.random()<0.4)
+            if is_choice:
+                for choice_index in range(1,rng.randint(2,level+4)):
+                    tag=rng.choice(['','[Go] ','[Wait] ','[Delay] '])
+                    text=f'{tag}route {rng.randrange(10,99)}: ticket {index}'
+                    if scenario in (1,4,7):text+=' -> the old label'
+                    target=rng.choice(identifiers+['End'])
+                    lines.append(f'{choice_index}. {text} -> {target}')
+            else:
+                text=f'Notice: status {rng.randrange(100,999)}'
+                if scenario in (1,4,7):text+=' -> transition recorded'
+                target=identifiers[i+1] if i+1<n else 'End'
+                lines.append(f'{rng.choice(["Guide","Narrator","Analyst"])}: {text} -> {target}')
+        if scenario in (2,4):
+            lines=[('  '+line+'  ') if line else '' for line in lines]
+        return {'text':rng.choice(['\n','\r\n']).join(lines)+'\n'}
     if family == 'dependencies':
-        nodes=[f'{c}{rng.randrange(10,99)}' for c in 'ABCDEFG'[:level+3]]
-        order=nodes[:];rng.shuffle(order)
-        edges=[[order[i],order[j]] for i in range(len(nodes)) for j in range(i+1,len(nodes)) if rng.random()<0.35]
-        if index%4==0:edges.extend([[nodes[0],nodes[1]],[nodes[1],nodes[0]]])
-        if edges:edges.append(edges[0][:])
+        nodes=[f'{c}{rng.randrange(1,999)}' for c in 'ABCDEFGH'[:rng.randint(3,level+4)]]
+        order=sorted(nodes,reverse=scenario==1)
+        if scenario==7:rng.shuffle(order)
+        if scenario in (0,1):edges=[list(p) for p in zip(order,order[1:])]
+        else:
+            edges=[[order[i],order[j]] for i in range(len(nodes)) for j in range(i+1,len(nodes))
+                   if rng.random()<0.3]
+        if scenario==2:
+            edges=[[nodes[0],nodes[2]],[nodes[1],nodes[2]]]
+        if scenario==3:edges=[]
+        if scenario==4:edges.extend([[nodes[0],nodes[1]],[nodes[1],nodes[0]]])
+        if scenario==5:edges.append([nodes[0],nodes[0]])
+        if scenario==6:nodes,edges=[],[]
+        if edges and scenario in (2,4,7):edges.extend([edges[0][:],edges[-1][:]])
         rng.shuffle(nodes);rng.shuffle(edges)
         return {'nodes':nodes,'edges':edges}
-    jobs=[]
-    for i in range(3+2*level):
+    token=str(rng.randrange(100,999));a,b,c,d=(prefix+token for prefix in 'ABCD')
+    value=rng.randint(3,20);offset=rng.randint(-20,20)
+    def job(identifier,start,end,amount):
+        return {'id':identifier,'start':start+offset,'end':end+offset,'value':amount}
+    if scenario==0:jobs=[job(a,0,2,value),job(b,2,4,value+1)]
+    elif scenario==1:jobs=[job(a,0,1,1),job(b,1,4,1),job(c,0,4,value+3),job(d,4,6,2)]
+    elif scenario==2:jobs=[job(b,0,4,value),job(a,0,4,value),job(c,4,6,2)]
+    elif scenario==3:jobs=[job(a,0,2,-value),job(b,2,4,-1)]
+    elif scenario==4:jobs=[job(a,0,5,1),job(b,1,4,value),job(c,2,6,2),job(d,4,7,3)]
+    elif scenario==5:jobs=[]
+    elif scenario==6:jobs=[job(a,-2,0,0),job(b,0,2,value),job(c,0,2,-1)]
+    else:jobs=[]
+    if scenario!=7:
+        rng.shuffle(jobs)
+        return {'jobs':jobs}
+    for i in range(rng.randint(3,3+2*level)):
         start=rng.randrange(-3,15);end=start+rng.randrange(1,7)
         jobs.append({'id':f'J{i}-{rng.randrange(100,999)}','start':start,'end':end,'value':rng.randrange(-4,20)})
     rng.shuffle(jobs)
@@ -181,11 +248,21 @@ def make_search_task(task_id, seed=None):
 from solution import solve
 class ContractChecks(unittest.TestCase):
     def test_examples(self):
-        for case in json.load(open('examples.json')):
-            with self.subTest(input=case['input']):
+        for index,case in enumerate(json.load(open('examples.json'))):
+            with self.subTest(case=index):
                 data=copy.deepcopy(case['input']); before=copy.deepcopy(data)
-                self.assertEqual(solve(data),case['expected'])
-                self.assertEqual(data,before,'Input must not be mutated')
+                try:
+                    actual=solve(data)
+                    equal=json.dumps(actual,sort_keys=True,allow_nan=False)==json.dumps(case['expected'],sort_keys=True,allow_nan=False)
+                    valid=equal and data==before
+                    details={'input':before,'expected':case['expected'],'actual':actual,'input_mutated':data!=before}
+                except Exception as error:
+                    valid=False
+                    details={'input':before,'expected':case['expected'],'error':str(error)[:500]}
+                if not valid:
+                    with open('failure-'+str(index)+'.json','w') as out:
+                        json.dump(details,out,ensure_ascii=False,default=repr)
+                self.assertTrue(valid,'Example '+str(index)+' failed; inspect failure-'+str(index)+'.json')
 if __name__=='__main__': unittest.main()
 '''
     files={'solution.py':STARTERS[family], 'contract.txt':CONTRACTS[family],
@@ -193,6 +270,7 @@ if __name__=='__main__': unittest.main()
     instruction=('Repair solution.py so solve(data) obeys contract.txt on new inputs. '
                  'Read the contract and run python tests.py to reproduce failures. '
                  'Use the counterexamples to revise the implementation and rerun tests. '
+                 'Failed examples save their input, expected and actual output in failure-N.json. '
                  'Public tests are examples, not the complete specification. '
                  'You may add tests and scratch files. Do not hardcode examples. '
                  'solve must return JSON-serializable values without mutating its input. '

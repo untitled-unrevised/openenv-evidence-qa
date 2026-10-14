@@ -13,6 +13,7 @@ from evidence_qa.search_curriculum import SEARCH_TASKS
 from search_solutions import SOLUTIONS
 
 parser=argparse.ArgumentParser();parser.add_argument('--url',default='http://127.0.0.1:8930')
+parser.add_argument('--seed',type=int,default=2718)
 args=parser.parse_args()
 ws_url=args.url.replace('http','ws',1)+'/ws'
 def call(ws,kind,data):
@@ -23,7 +24,7 @@ def call(ws,kind,data):
 results=[]
 for task_id,(family,level) in SEARCH_TASKS.items():
     with connect(ws_url) as ws:
-        initial=call(ws,'reset',{'task_id':task_id,'seed':2718})
+        initial=call(ws,'reset',{'task_id':task_id,'seed':args.seed})
         baseline=call(ws,'step',{'operation':'check'})
         assert not baseline['done'] and baseline['reward']==0
         failure=call(ws,'step',{'operation':'shell','command':'python tests.py'})
@@ -35,7 +36,7 @@ for task_id,(family,level) in SEARCH_TASKS.items():
         assert '4/4' in public['observation']['output'] and not public['done'],public
         final=call(ws,'step',{'operation':'submit'})
         assert final['done'] and final['reward']==1,final
-        call(ws,'reset',{'task_id':task_id,'seed':2718})
+        call(ws,'reset',{'task_id':task_id,'seed':args.seed})
         call(ws,'step',{'operation':'write','path':'solution.py','content':'def solve(data): return {}\n'})
         call(ws,'step',{'operation':'write','path':'tests.py','content':'print("fake pass")\n'})
         bad=call(ws,'step',{'operation':'check'})
@@ -57,6 +58,6 @@ with connect(ws_url) as a,connect(ws_url) as b:
     for i in range(62):final=call(a,'step',{'operation':'list'})
     assert final['done'] and final['reward']==1,final
 
-print(json.dumps({'tasks':results,'private_source_denied':True,'session_isolation':True,
+print(json.dumps({'seed':args.seed,'tasks':results,'private_source_denied':True,'session_isolation':True,
                   'budget_uses_private_grade':True,'model_trials':0,
                   'schema':requests.get(args.url+'/schema',timeout=15).json()},indent=2))

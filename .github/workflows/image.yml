@@ -58,6 +58,14 @@ jobs:
           done
           test "$ready" = true
           docker exec evidence-qa-check openenv validate --url http://127.0.0.1:8000
+          if [[ "$DOCKERFILE" == 'Dockerfile.search' ]]; then
+            # Reference policies are copied into this disposable test container
+            # after the build; they are never added to the published image.
+            docker exec evidence-qa-check mkdir -p /app/scripts /app/tests
+            docker cp scripts/search_check.py evidence-qa-check:/app/scripts/search_check.py
+            docker cp tests/search_solutions.py evidence-qa-check:/app/tests/search_solutions.py
+            docker exec evidence-qa-check python /app/scripts/search_check.py --url http://127.0.0.1:8000
+          fi
       - name: Publish only when explicitly selected
         if: ${{ inputs.publish }}
         env:
