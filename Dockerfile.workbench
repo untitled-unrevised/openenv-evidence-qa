@@ -1,0 +1,7 @@
+FROM ghcr.io/untitled-unrevised/evidence-qa@sha256:17d46aa02981a896f07255818dd7f34c495bf28198b1e8eee12eb8cd90b2b9b3
+RUN apt-get update && apt-get install -y --no-install-recommends util-linux && rm -rf /var/lib/apt/lists/*
+COPY evidence_qa /app/evidence_qa
+RUN chmod 700 /app /root
+ENV EVIDENCE_WORKBENCH_CONTAINER=1
+EXPOSE 8000
+CMD ["uvicorn", "evidence_qa.workbench_server:app", "--host", "0.0.0.0", "--port", "8000"]
