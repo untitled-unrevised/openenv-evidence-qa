@@ -20,6 +20,34 @@ The public task and output artifacts remain local and are excluded from training
 SkillsBench is a public workflow proxy; its relationship to Arena's hidden suite
 has not been established by the organizers.
 
+Also attempted the public exam-block-sequencing task from that revision. A
+65-second vectorized simulated-annealing search produced a feasible 24-block
+schedule that passed the public reference-quality threshold. Its first report
+misinterpreted the overlap objective and failed the metrics-consistency check
+(reported 3019 versus verifier-recomputed 4034). After consulting the public
+verifier to clarify the objective, a second 65-second search optimized the full
+formula and produced objective 3971. The unchanged verifier then passed all
+three checks: reported objective, feasibility, and reference-quality threshold.
+No optimality proof is claimed. The reference solution was not read. Verification
+again used an isolated Python 3.11/pytest container with the actual task data and
+unchanged verifier, not the full native task harness. Files and traces remain
+local under artifacts/workspace-feasibility/. This public task is not in training.
+
+## Published target-model diagnostic evidence
+
+Inspected the peer-published calibration at
+<https://huggingface.co/datasets/rca-umb/five-desks-code/tree/e042d726112949e78c10efdb53d0a7c012809eab/calibration>.
+Its r2 files report Qwen/Qwen3.8-27B:deepinfra solving 38/72 episodes, with a
+lenient parser and rescued replies. Reported endings include 17 schema-invalid,
+6 no-JSON, 3 truncated, and 7 out-of-steps episodes. One schema failure emitted
+`{"tool":"exec","cmd":"ls src/isodate"}` instead of the required nested
+arguments; one no-JSON failure emitted prose proposing an experiment instead
+of an executable action. These are concrete examples of action-interface and
+budget failures alongside genuine successful code repair. They do not establish
+the cause of Arena's low score. This is third-party evidence, not independently
+reproduced inference or calibration of our new curriculum, and its lenient parser
+is not the Arena contract. These traces are not incorporated into training.
+
 ## Training hypothesis and implementation
 
 V1 rewarded fixed JSON answers with no executable workspace. This experiment
