@@ -26,9 +26,28 @@ and pinned the dataset revision. All static checks passed. Its sandbox admission
 then passed, the submission became `validated`, and its daily slot became `used`.
 The run received Slurm job 1498 and a 14400-second budget on one GPU.
 
-At this record's creation, the run was loading with policy_version=0 and no
-evaluation result. The dashboard is the live reference for subsequent progress.
-No learning gain, final private score, or leaderboard rank is claimed here.
+## Final evaluation
+
+The real run completed 308 optimizer updates without a reported run error.
+Arena's heldout-v2 evaluation returned **3/40 solved (7.5%)**, versus the
+untrained reference's **4/40 (10%)**: one fewer solve, or -2.5 percentage points.
+
+Industrial: 2/5, unchanged from the reference. Office: 1/5, versus the
+reference's 2/5. Software, science, finance, math, security and media: 0/5 each.
+This single evaluation demonstrates no gain; it is too small to attribute the
+one-task difference reliably to training rather than evaluation variation.
+
+On 2026-10-14, the live leaderboard listed the account at position24 of28,
+with ten accounts tied at7.5%. The leading account's domain-best aggregate
+was20%. Positions and the leader can change.
+
+The final reward-curve fetch timed out on2026-10-14, so no final training-reward
+trend is claimed. Earlier observations (25 logged steps) had14 zero-variance
+groups and clipped_ratio=1.0; the clipping metric's interpretation remains
+unresolved. Neither observation establishes the cause of the evaluation result.
+
+The next accepted-submission slot opens2026-10-14 at22:55:39 UTC+7, according
+to the returned account slot. No second submission has been made.
 
 This is an uncalibrated initial experiment. Fixed training instances, binary
 rewards, limited task diversity and lack of a calculation tool are known limits.

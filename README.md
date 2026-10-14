@@ -11,6 +11,9 @@ Image: `ghcr.io/untitled-unrevised/evidence-qa:v1`
 
 Arena run and admission evidence: [run-v1](docs/run-v1.md).
 
+**V1 result:** 308 training updates; 3/40 heldout-v2 tasks solved (7.5%),
+versus the untrained reference's 4/40 (10%). No demonstrated improvement.
+
 Live dashboard: https://openenvarena-training.hf.space/?project=hieudhgdfgdfg&runs=5e9d18e3bcf706ac9c5c0fc8
 
 There are 12 training task IDs: four invoice reconciliation instances, four
